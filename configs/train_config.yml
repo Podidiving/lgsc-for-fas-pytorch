@@ -1,0 +1,21 @@
+loss_coef:
+  clf_loss: 5.0
+  reg_loss: 5.0
+  trip_loss: 1.0
+lr: 0.0005
+milestones:
+  - 5
+  - 8
+  - 12
+gamma: 0.3
+
+train_df: null  # path to train csv file
+val_df: null  # path to validation csv file
+path_root: null  # prefix path to your images
+
+batch_size: 96
+num_workers_train: 3
+num_workers_val: 3
+
+default_root_dir: null  # path to save pytorch_lightning logs
+max_epochs: 15
