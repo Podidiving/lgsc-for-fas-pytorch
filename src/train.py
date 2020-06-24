@@ -16,9 +16,7 @@ if __name__ == '__main__':
     model = LightningModel(hparams=configs)
     trainer = pl.Trainer.from_argparse_args(
         configs,
-        fast_dev_run=True,
         early_stop_callback=True,
         default_root_dir=configs.default_root_dir,
-        gradient_clip_val=0.1
     )
     trainer.fit(model)

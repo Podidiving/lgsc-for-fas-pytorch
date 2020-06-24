@@ -51,7 +51,6 @@ class LightningModel(pl.LightningModule):
             trip_loss += \
                 self.triplet_loss(feat, target) \
                 * self.hparams.loss_coef['trip_loss']
-
         total_loss = clf_loss + reg_loss + trip_loss
 
         return total_loss
@@ -80,7 +79,6 @@ class LightningModel(pl.LightningModule):
         target = batch[1]
         outs, clf_out = self(input_)
         loss = self.calc_losses(outs, clf_out, target)
-
         val_dict = {
             'val_loss': loss,
             'score': clf_out.cpu().numpy(),
@@ -90,8 +88,8 @@ class LightningModel(pl.LightningModule):
 
     def validation_epoch_end(self, outputs):
         avg_loss = torch.stack([x['val_loss'] for x in outputs]).mean()
-        targets = np.vstack([output['target'] for output in outputs]).T.squeeze(0)
-        scores = np.vstack([output['score'] for output in outputs]).T.squeeze(0)
+        targets = np.hstack([output['target'] for output in outputs])
+        scores = np.vstack([output['score'] for output in outputs])[:, 1]
         roc_auc = metrics.roc_auc_score(targets, scores)
         tensorboard_logs = {
             'val_loss': avg_loss,
