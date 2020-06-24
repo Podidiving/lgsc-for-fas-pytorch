@@ -12,16 +12,16 @@ def pairwise_distances(embeddings, squared=False):
     # a vector
     square_sum = dot_product.diag()
 
-    distances = square_sum.unsqueeze(1) - 2*dot_product + square_sum.unsqueeze(0)
+    distances = square_sum.unsqueeze(1) - 2 * dot_product + square_sum.unsqueeze(0)
 
     distances = distances.clamp(min=0)
 
     if not squared:
-        epsilon=1e-16
+        epsilon = 1e-16
         mask = torch.eq(distances, 0).float()
         distances += mask * epsilon
         distances = torch.sqrt(distances)
-        distances *= (1-mask)
+        distances *= 1 - mask
 
     return distances
 
@@ -120,7 +120,7 @@ def batch_hard_triplet_loss(labels, embeddings, margin, squared=False):
     hardest_positive_dist = (distances * mask_positive.float()).max(dim=1)[0]
 
     mask_negative = get_valid_negative_mask(labels)
-    max_negative_dist = distances.max(dim=1,keepdim=True)[0]
+    max_negative_dist = distances.max(dim=1, keepdim=True)[0]
     distances = distances + max_negative_dist * (~mask_negative).float()
     hardest_negative_dist = distances.min(dim=1)[0]
 

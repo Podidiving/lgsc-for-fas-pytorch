@@ -10,8 +10,16 @@ from typing import List
 
 def conv3x3(in_planes, out_planes, stride=1, groups=1, dilation=1):
     """3x3 convolution with padding"""
-    return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
-                     padding=dilation, groups=groups, bias=False, dilation=dilation)
+    return nn.Conv2d(
+        in_planes,
+        out_planes,
+        kernel_size=3,
+        stride=stride,
+        padding=dilation,
+        groups=groups,
+        bias=False,
+        dilation=dilation,
+    )
 
 
 def conv1x1(in_planes, out_planes, stride=1):
@@ -22,13 +30,22 @@ def conv1x1(in_planes, out_planes, stride=1):
 class BasicBlock(nn.Module):
     expansion = 1
 
-    def __init__(self, inplanes, planes, stride=1, downsample=None, groups=1,
-                 base_width=64, dilation=1, norm_layer=None):
+    def __init__(
+        self,
+        inplanes,
+        planes,
+        stride=1,
+        downsample=None,
+        groups=1,
+        base_width=64,
+        dilation=1,
+        norm_layer=None,
+    ):
         super(BasicBlock, self).__init__()
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
         if groups != 1 or base_width != 64:
-            raise ValueError('BasicBlock only supports groups=1 and base_width=64')
+            raise ValueError("BasicBlock only supports groups=1 and base_width=64")
         if dilation > 1:
             raise NotImplementedError("Dilation > 1 not supported in BasicBlock")
         # Both self.conv1 and self.downsample layers downsample the input when stride != 1
@@ -59,15 +76,7 @@ class BasicBlock(nn.Module):
         return out
 
 
-def make_layer(
-        block,
-        inplanes,
-        planes,
-        blocks,
-        stride=1,
-        dilation=1,
-        norm_layer=None
-):
+def make_layer(block, inplanes, planes, blocks, stride=1, dilation=1, norm_layer=None):
     if norm_layer is None:
         norm_layer = nn.BatchNorm2d
 
@@ -79,24 +88,37 @@ def make_layer(
         )
 
     layers = []
-    layers.append(block(inplanes, planes, stride=stride, downsample=downsample, groups=1,
-                        base_width=64, dilation=dilation, norm_layer=norm_layer))
+    layers.append(
+        block(
+            inplanes,
+            planes,
+            stride=stride,
+            downsample=downsample,
+            groups=1,
+            base_width=64,
+            dilation=dilation,
+            norm_layer=norm_layer,
+        )
+    )
     inplanes = planes * block.expansion
 
     for _ in range(1, blocks):
-        layers.append(block(inplanes, planes, groups=1,
-                            base_width=64, dilation=dilation,
-                            norm_layer=norm_layer))
+        layers.append(
+            block(
+                inplanes,
+                planes,
+                groups=1,
+                base_width=64,
+                dilation=dilation,
+                norm_layer=norm_layer,
+            )
+        )
 
     return nn.Sequential(*layers)
 
 
 class ResNet18Encoder(nn.Module):
-    def __init__(
-        self,
-        out_indices: List[int] = (1, 2, 3, 4),
-        pretrained: bool = True
-    ):
+    def __init__(self, out_indices: List[int] = (1, 2, 3, 4), pretrained: bool = True):
         super().__init__()
         self.resnet18 = models.resnet18(pretrained=pretrained)
         self.resnet18.fc = None
@@ -133,16 +155,12 @@ class ResNet18Encoder(nn.Module):
 
 class ResNet18Classifier(nn.Module):
     def __init__(
-        self,
-        num_classes: int = 2,
-        pretrained: bool = True,
-        dropout: float = 0.5
+        self, num_classes: int = 2, pretrained: bool = True, dropout: float = 0.5
     ):
         super().__init__()
         self.resnet18 = models.resnet18(pretrained=pretrained)
         self.resnet18.fc = nn.Linear(
-            in_features=self.resnet18.fc.in_features,
-            out_features=num_classes
+            in_features=self.resnet18.fc.in_features, out_features=num_classes
         )
         self.drop = nn.Dropout(dropout)
         self._freeze_clf()

@@ -5,10 +5,7 @@ from models.resnet import ResNet18Classifier, ResNet18Encoder
 
 
 class SCAN(nn.Module):
-    def __init__(
-        self,
-        dropout: float = 0.5
-    ):
+    def __init__(self, dropout: float = 0.5):
         super().__init__()
         self.backbone = ResNet18Encoder()
         self.decoder = Decoder()

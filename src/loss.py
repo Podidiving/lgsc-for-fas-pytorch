@@ -7,6 +7,7 @@ class TripletLoss(nn.Module):
 
     arXiv: https://arxiv.org/pdf/1703.07737.pdf
     """
+
     def __init__(self, margin=0.5):
         super(TripletLoss, self).__init__()
         self.margin = margin
