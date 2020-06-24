@@ -6,6 +6,18 @@ of ["Learning Generalized Spoof Cues for FaceAnti-spoofing (LGSC)"](https://arxi
 
 Code of this repository uses ["pytorch"](https://github.com/pytorch/pytorch) and ["pytorch_lightning"](https://github.com/PyTorchLightning/pytorch-lightning)
 
+### Train
+There are 2 ways:
+ 1. Configure your own dataset, redefine `val_dataloader` & `train_dataloader` functions in `pl_model.py`
+ 2. Specify in `configs/train_config.yml` next variables: `train_df` - path to csv with train info. 
+ Each object should have `target` 
+ (1 for live, 0 for spoof) and `path` 
+ (relative path, see `src/dataset` to understand, how path is build), 
+ `val_df`, `path_root` (absolute path to your data) `default_root_dir` 
+ (path to store `pytorch_lightning` logs)
+
+Then run `python src/train.py -c configs/train_config`
+
 ## Citation
 ```
 @inproceedings{
