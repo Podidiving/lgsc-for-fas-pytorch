@@ -22,6 +22,10 @@ There are 2 ways:
 
 Then run `python src/train.py -c configs/train_config`
 
+### Infer
+1. Specify parameters in `configs/infer_configs.yml`
+2. Run `src/infer.py`
+
 ## Citation
 ```
 @inproceedings{
