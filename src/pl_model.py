@@ -4,9 +4,11 @@ import numpy as np
 from sklearn import metrics
 
 import torch
+from torch import nn
 from torch.nn import functional as F
 
 from catalyst.data.sampler import BalanceClassSampler
+from catalyst.contrib.nn.criterion.focal import FocalLossMultiClass
 import pytorch_lightning as pl
 
 from datasets import Dataset, get_test_augmentations, get_train_augmentations
@@ -21,6 +23,10 @@ class LightningModel(pl.LightningModule):
         self.hparams = hparams
         self.model = SCAN()
         self.triplet_loss = TripletLoss()
+        if self.hparams.use_focal_loss:
+            self.clf_criterion = FocalLossMultiClass()
+        else:
+            self.clf_criterion = nn.CrossEntropyLoss()
 
     def forward(self, x):
         return self.model(x)
@@ -32,7 +38,7 @@ class LightningModel(pl.LightningModule):
     def calc_losses(self, outs, clf_out, target):
 
         clf_loss = (
-            F.cross_entropy(clf_out, target)
+            self.clf_criterion(clf_out, target)
             * self.hparams.loss_coef["clf_loss"]
         )
         cue = outs[-1]
@@ -119,13 +125,19 @@ class LightningModel(pl.LightningModule):
         dataset = Dataset(
             df, self.hparams.path_root, transforms, face_detector=face_detector
         )
-        labels = list(df.target.values)
-        sampler = BalanceClassSampler(labels, mode="upsampling")
+        if self.hparams.use_balance_sampler:
+            labels = list(df.target.values)
+            sampler = BalanceClassSampler(labels, mode="upsampling")
+            shuffle = False
+        else:
+            sampler = None
+            shuffle = True
         dataloader = torch.utils.data.DataLoader(
             dataset,
             batch_size=self.hparams.batch_size,
             num_workers=self.hparams.num_workers_train,
             sampler=sampler,
+            shuffle=shuffle
         )
         return dataloader
 

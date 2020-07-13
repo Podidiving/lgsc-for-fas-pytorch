@@ -16,21 +16,24 @@ image_size: 224
 # uncomment this, to use online face cropping
 # however it is not recommended
 # you can only use cpu device as device for face-cropping nn
-#face_detector:
-#  image_size: 512
-#  margin: 100
-#  min_face_size: 100
-#  thresholds: [0.6, 0.7, 0.7]
-#  factor: 0.709
-#  device: *device
+face_detector:
+  image_size: 512
+  margin: 100
+  min_face_size: 100
+  thresholds: [0.6, 0.7, 0.7]
+  factor: 0.709
+  device: *device
 
-train_df:  # path to train csv file
-val_df:  # path to validation csv file
-path_root:  # prefix path to your images
+train_df: null  # path to train csv file
+val_df: null # path to validation csv file
+path_root: null # prefix path to your images
 
 batch_size: 96
 num_workers_train: 3
 num_workers_val: 3
 
-default_root_dir: /notebook/workspace/lgsc  # path to save pytorch_lightning logs
+default_root_dir: null # path to save pytorch_lightning logs
 max_epochs: 15
+
+use_balance_sampler: True  # You can try overcome class disbalance using balance sampler
+use_focal_loss: False  # You can try use focal loss instead of cross-entropy loss
