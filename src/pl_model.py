@@ -12,6 +12,7 @@ import pytorch_lightning as pl
 from datasets import Dataset, get_test_augmentations, get_train_augmentations
 from models.scan import SCAN
 from loss import TripletLoss
+from metrics import eval_from_scores
 
 
 class LightningModel(pl.LightningModule):
@@ -26,12 +27,15 @@ class LightningModel(pl.LightningModule):
 
     def calc_losses(self, outs, clf_out, target):
 
-        clf_loss = F.cross_entropy(clf_out, target) * self.hparams.loss_coef["clf_loss"]
+        clf_loss = (
+            F.cross_entropy(clf_out, target)
+            * self.hparams.loss_coef["clf_loss"]
+        )
         cue = outs[-1]
         cue = target.reshape(-1, 1, 1, 1) * cue
-        num_reg = (torch.sum(target) * cue.shape[1] * cue.shape[2] * cue.shape[3]).type(
-            torch.float
-        )
+        num_reg = (
+            torch.sum(target) * cue.shape[1] * cue.shape[2] * cue.shape[3]
+        ).type(torch.float)
         reg_loss = (
             torch.sum(torch.abs(cue)) / (num_reg + 1e-9)
         ) * self.hparams.loss_coef["reg_loss"]
@@ -41,7 +45,8 @@ class LightningModel(pl.LightningModule):
         for feat in outs[:-1]:
             feat = F.adaptive_avg_pool2d(feat, [1, 1]).view(bs, -1)
             trip_loss += (
-                self.triplet_loss(feat, target) * self.hparams.loss_coef["trip_loss"]
+                self.triplet_loss(feat, target)
+                * self.hparams.loss_coef["trip_loss"]
             )
         total_loss = clf_loss + reg_loss + trip_loss
 
@@ -79,8 +84,18 @@ class LightningModel(pl.LightningModule):
         avg_loss = torch.stack([x["val_loss"] for x in outputs]).mean()
         targets = np.hstack([output["target"] for output in outputs])
         scores = np.vstack([output["score"] for output in outputs])[:, 1]
+        metrics_, best_thr, acc = eval_from_scores(scores, targets)
+        acer, apcer, npcer = metrics_
         roc_auc = metrics.roc_auc_score(targets, scores)
-        tensorboard_logs = {"val_loss": avg_loss, "val_roc_auc": roc_auc}
+        tensorboard_logs = {
+            "val_loss": avg_loss,
+            "val_roc_auc": roc_auc,
+            "val_acer": acer,
+            "val_apcer": apcer,
+            "val_npcer": npcer,
+            "val_acc": acc,
+            "val_thr": best_thr,
+        }
         return {"val_loss": avg_loss, "log": tensorboard_logs}
 
     def configure_optimizers(self):
@@ -91,9 +106,15 @@ class LightningModel(pl.LightningModule):
         return [optim], [scheduler]
 
     def train_dataloader(self):
-        transforms = get_train_augmentations()
+        transforms = get_train_augmentations(self.hparams.image_size)
         df = pd.read_csv(self.hparams.train_df)
-        dataset = Dataset(df, self.hparams.path_root, transforms)
+        try:
+            face_detector = self.hparams.face_detector
+        except AttributeError:
+            face_detector = None
+        dataset = Dataset(
+            df, self.hparams.path_root, transforms, face_detector=face_detector
+        )
         labels = list(df.target.values)
         sampler = BalanceClassSampler(labels, mode="upsampling")
         dataloader = torch.utils.data.DataLoader(
@@ -105,9 +126,15 @@ class LightningModel(pl.LightningModule):
         return dataloader
 
     def val_dataloader(self):
-        transforms = get_test_augmentations()
+        transforms = get_test_augmentations(self.hparams.image_size)
         df = pd.read_csv(self.hparams.val_df)
-        dataset = Dataset(df, self.hparams.path_root, transforms)
+        try:
+            face_detector = self.hparams.face_detector
+        except AttributeError:
+            face_detector = None
+        dataset = Dataset(
+            df, self.hparams.path_root, transforms, face_detector=face_detector
+        )
         dataloader = torch.utils.data.DataLoader(
             dataset,
             batch_size=self.hparams.batch_size,

@@ -24,7 +24,9 @@ def conv3x3(in_planes, out_planes, stride=1, groups=1, dilation=1):
 
 def conv1x1(in_planes, out_planes, stride=1):
     """1x1 convolution"""
-    return nn.Conv2d(in_planes, out_planes, kernel_size=1, stride=stride, bias=False)
+    return nn.Conv2d(
+        in_planes, out_planes, kernel_size=1, stride=stride, bias=False
+    )
 
 
 class BasicBlock(nn.Module):
@@ -45,9 +47,13 @@ class BasicBlock(nn.Module):
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
         if groups != 1 or base_width != 64:
-            raise ValueError("BasicBlock only supports groups=1 and base_width=64")
+            raise ValueError(
+                "BasicBlock only supports groups=1 and base_width=64"
+            )
         if dilation > 1:
-            raise NotImplementedError("Dilation > 1 not supported in BasicBlock")
+            raise NotImplementedError(
+                "Dilation > 1 not supported in BasicBlock"
+            )
         # Both self.conv1 and self.downsample layers downsample the input when stride != 1
         self.conv1 = conv3x3(inplanes, planes, stride)
         self.bn1 = norm_layer(planes)
@@ -76,7 +82,9 @@ class BasicBlock(nn.Module):
         return out
 
 
-def make_layer(block, inplanes, planes, blocks, stride=1, dilation=1, norm_layer=None):
+def make_layer(
+    block, inplanes, planes, blocks, stride=1, dilation=1, norm_layer=None
+):
     if norm_layer is None:
         norm_layer = nn.BatchNorm2d
 
@@ -118,7 +126,9 @@ def make_layer(block, inplanes, planes, blocks, stride=1, dilation=1, norm_layer
 
 
 class ResNet18Encoder(nn.Module):
-    def __init__(self, out_indices: List[int] = (1, 2, 3, 4), pretrained: bool = True):
+    def __init__(
+        self, out_indices: List[int] = (1, 2, 3, 4), pretrained: bool = True
+    ):
         super().__init__()
         self.resnet18 = models.resnet18(pretrained=pretrained)
         self.resnet18.fc = None
@@ -155,7 +165,10 @@ class ResNet18Encoder(nn.Module):
 
 class ResNet18Classifier(nn.Module):
     def __init__(
-        self, num_classes: int = 2, pretrained: bool = True, dropout: float = 0.5
+        self,
+        num_classes: int = 2,
+        pretrained: bool = True,
+        dropout: float = 0.5,
     ):
         super().__init__()
         self.resnet18 = models.resnet18(pretrained=pretrained)
