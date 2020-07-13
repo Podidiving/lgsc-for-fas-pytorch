@@ -91,7 +91,7 @@ def make_layer(
     downsample = None
     if stride != 1 or inplanes != planes * block.expansion:
         downsample = nn.Sequential(
-            conv1x1(inplanes, planes * block.expansion, 1),
+            conv1x1(inplanes, planes * block.expansion, stride),
             norm_layer(planes * block.expansion),
         )
 
