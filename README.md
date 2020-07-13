@@ -13,8 +13,12 @@ There are 2 ways:
  Each object should have `target` 
  (1 for live, 0 for spoof) and `path` 
  (relative path, see `src/dataset` to understand, how path is build), 
- `val_df`, `path_root` (absolute path to your data) `default_root_dir` 
- (path to store `pytorch_lightning` logs)
+ Also specify `val_df` (like `train_df`),
+ `path_root` (absolute path to your data) and 
+ `default_root_dir` (path to store `pytorch_lightning` logs)
+ 
+ **Note** You can crop faces online with [facenet-pytorch](https://github.com/timesler/facenet-pytorch),
+ just specify parameters in `configs/train_config.yml`
 
 Then run `python src/train.py -c configs/train_config`
 
