@@ -4,3 +4,8 @@ albumentations==0.4.5
 pytorch_lightning==0.8.1
 catalyst==20.02.4
 facenet_pytorch
+
+pandas
+numpy
+tqdm
+safitty

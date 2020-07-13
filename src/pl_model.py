@@ -25,6 +25,10 @@ class LightningModel(pl.LightningModule):
     def forward(self, x):
         return self.model(x)
 
+    def infer(self, x):
+        outs, _ = self.model(x)
+        return outs[-1]
+
     def calc_losses(self, outs, clf_out, target):
 
         clf_loss = (

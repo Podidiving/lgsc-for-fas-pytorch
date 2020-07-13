@@ -1,0 +1,15 @@
+device: cuda:0
+verbose: True
+
+checkpoints: null  # path to pl checkpoint
+
+image_size: 224
+
+with_labels: True
+num_workers: 5
+batch_size: 16
+face_detector: null
+
+infer_df: null  # path to csv file with test data
+root: null  # prefix path to your images
+out_file: null  # path to file you want save your results

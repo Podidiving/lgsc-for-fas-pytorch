@@ -42,10 +42,12 @@ class Dataset(torch.utils.data.Dataset):
         root: str,
         transforms: Callable,
         face_detector: dict = None,
+        with_labels: bool = True,
     ):
         self.df = df
         self.root = root
         self.transforms = transforms
+        self.with_labels = with_labels
         self.face_extractor = None
         if face_detector is not None:
             face_detector["keep_all"] = True
@@ -61,13 +63,18 @@ class Dataset(torch.utils.data.Dataset):
         full_path = os.path.join(path, file)
 
         image = Image.open(full_path)
-        target = self.df.iloc[item].target
+        if self.with_labels:
+            target = self.df.iloc[item].target
 
         if self.face_extractor is not None:
             faces, probs = self.face_extractor(image, return_prob=True)
             if faces is None:
                 logging.warning(f"{full_path} doesn't containt any face!")
-                return self.transforms(image=np.array(image))["image"], target
+                image = self.transforms(image=np.array(image))["image"]
+                if self.with_labels:
+                    return image, target
+                else:
+                    return image
             if faces.shape[0] != 1:
                 logging.warning(
                     f"{full_path} - {faces.shape[0]} faces detected"
@@ -82,6 +89,9 @@ class Dataset(torch.utils.data.Dataset):
                 face = faces[0].numpy().astype(np.uint8).transpose(1, 2, 0)
             image = self.transforms(image=face)["image"]
         else:
-            image = self.transforms(image=image)["image"]
+            image = self.transforms(image=np.array(image))["image"]
 
-        return image, target
+        if self.with_labels:
+            return image, target
+        else:
+            return image
