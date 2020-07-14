@@ -15,6 +15,7 @@ from datasets import Dataset, get_test_augmentations, get_train_augmentations
 from models.scan import SCAN
 from loss import TripletLoss
 from metrics import eval_from_scores
+from utils import GridMaker
 
 
 class LightningModel(pl.LightningModule):
@@ -23,6 +24,8 @@ class LightningModel(pl.LightningModule):
         self.hparams = hparams
         self.model = SCAN()
         self.triplet_loss = TripletLoss()
+        self.log_cues = not self.hparams.cue_log_every == 0
+        self.grid_maker = GridMaker()
         if self.hparams.use_focal_loss:
             self.clf_criterion = FocalLossMultiClass()
         else:
@@ -88,6 +91,20 @@ class LightningModel(pl.LightningModule):
             "score": clf_out.cpu().numpy(),
             "target": target.cpu().numpy(),
         }
+        if self.log_cues:
+            if (
+                self.current_epoch * batch_idx
+            ) % self.hparams.cue_log_every == 0:
+                cues_grid, images_grid = self.grid_maker(
+                    input_.detach().cpu()[:6], outs[-1][:6]
+                )
+                self.logger.experiment.add_image(
+                    "cues", cues_grid, self.current_epoch * batch_idx
+                )
+                self.logger.experiment.add_image(
+                    "images", images_grid, self.current_epoch * batch_idx
+                )
+
         return val_dict
 
     def validation_epoch_end(self, outputs):
@@ -137,7 +154,7 @@ class LightningModel(pl.LightningModule):
             batch_size=self.hparams.batch_size,
             num_workers=self.hparams.num_workers_train,
             sampler=sampler,
-            shuffle=shuffle
+            shuffle=shuffle,
         )
         return dataloader
 

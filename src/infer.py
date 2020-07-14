@@ -70,7 +70,9 @@ def infer_model(
             if with_labels:
                 targets = torch.cat([targets, labels])
     if with_labels:
-        metrics_, best_thr, acc = eval_from_scores(np.array(scores), targets.long().numpy())
+        metrics_, best_thr, acc = eval_from_scores(
+            np.array(scores), targets.long().numpy()
+        )
         acer, apcer, npcer = metrics_
         if verbose:
             print(f"ACER: {acer}")
