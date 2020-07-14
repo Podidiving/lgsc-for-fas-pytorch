@@ -1,17 +1,20 @@
 #device: &device cpu
 
-loss_coef:
+loss_coef:  # coefficients for losses
   clf_loss: 5.0
   reg_loss: 5.0
   trip_loss: 1.0
-lr: 0.0005
-milestones:
+
+# TODO: config for optimizer
+lr: 0.0005  # optimizer lr
+# TODO: config for scheduler
+milestones:  # MultiStepLR scheduler params
   - 5
   - 8
   - 12
 gamma: 0.3
 
-image_size: 224
+image_size: 224  # size of input image
 cue_log_every: 100  # will log cues every cue_log_every batches. If 0, than won't log
 
 # uncomment this, to use online face cropping
@@ -29,12 +32,12 @@ train_df: null  # path to train csv file
 val_df: null  # path to validation csv file
 path_root: null  # prefix path to your images
 
-batch_size: 96
-num_workers_train: 3
-num_workers_val: 3
+batch_size: 96  # batch size for both validation and train dataloader
+num_workers_train: 3  # param for training dataloader
+num_workers_val: 3  # param for validation dataloader
 
 default_root_dir: null  # path to save pytorch_lightning logs
-max_epochs: 15
+max_epochs: 15  # max number of epochs to train (if doesn't achieved early stopping)
 
 use_balance_sampler: True  # You can try overcome class disbalance using balance sampler
 use_focal_loss: False  # You can try use focal loss instead of cross-entropy loss

@@ -1,14 +1,24 @@
-device: cuda:0
-verbose: True
+device: cuda:0  # can infer using only 1 gpu
+verbose: True  # whether print statistics or not
 
 checkpoints: null  # path to pl checkpoint
 
-image_size: 224
+image_size: 224  # size of input image
 
-with_labels: True
-num_workers: 5
-batch_size: 16
-face_detector: null
+with_labels: True  # Whether your csv file has labels or not
+num_workers: 5  # param for infer dataloader
+batch_size: 16  # batch size for infer dataloader
+
+# uncomment this, to use online face cropping
+# however it is not recommended
+# you can only use cpu device as device for face-cropping nn
+#face_detector:
+#  image_size: 512
+#  margin: 100
+#  min_face_size: 100
+#  thresholds: [0.6, 0.7, 0.7]
+#  factor: 0.709
+#  device: *device
 
 infer_df: null  # path to csv file with test data
 root: null  # prefix path to your images
