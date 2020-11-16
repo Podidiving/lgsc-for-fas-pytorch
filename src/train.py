@@ -16,6 +16,7 @@ if __name__ == "__main__":
     model = LightningModel(hparams=configs)
     trainer = pl.Trainer.from_argparse_args(
         configs,
+        gpus=-1,
         fast_dev_run=False,
         early_stop_callback=True,
         default_root_dir=configs.default_root_dir,

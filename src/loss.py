@@ -36,7 +36,7 @@ def get_valid_triplets_mask(labels):
         - a,p,n are distinct embeddings
         - a and p have the same label, while a and n have different label
     """
-    indices_equal = torch.eye(labels.size(0)).byte()
+    indices_equal = torch.eye(labels.size(0)).byte().to(labels.device)
     indices_not_equal = ~indices_equal
     i_ne_j = indices_not_equal.unsqueeze(2)
     i_ne_k = indices_not_equal.unsqueeze(1)
