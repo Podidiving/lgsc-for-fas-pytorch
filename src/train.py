@@ -17,6 +17,7 @@ if __name__ == "__main__":
     trainer = pl.Trainer.from_argparse_args(
         configs,
         gpus=-1,
+        accelerator="ddp",
         fast_dev_run=False,
         early_stop_callback=True,
         default_root_dir=configs.default_root_dir,
